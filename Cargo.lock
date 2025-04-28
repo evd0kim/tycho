@@ -941,8 +941,7 @@ dependencies = [
 [[package]]
 name = "everscale-crypto"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0da807f69d3d795921a2aaf4bd9b449e3d280d28b104e4909890a50c40a33950"
+source = "git+https://github.com/evd0kim/everscale-crypto.git?rev=69fbdaf97513cc247d5e50d926059e0b35facf2a#69fbdaf97513cc247d5e50d926059e0b35facf2a"
 dependencies = [
  "curve25519-dalek",
  "generic-array",
@@ -956,7 +955,7 @@ dependencies = [
 [[package]]
 name = "everscale-types"
 version = "0.1.2"
-source = "git+https://github.com/broxus/everscale-types.git?rev=acc7b79eee0712c48e7678ceafaf143cad2e4ca9#acc7b79eee0712c48e7678ceafaf143cad2e4ca9"
+source = "git+https://github.com/evd0kim/everscale-types.git?rev=acc7b79eee0712c48e7678ceafaf143cad2e4ca9#acc7b79eee0712c48e7678ceafaf143cad2e4ca9"
 dependencies = [
  "ahash",
  "anyhow",
@@ -986,7 +985,7 @@ dependencies = [
 [[package]]
 name = "everscale-types-abi-proc"
 version = "0.1.0"
-source = "git+https://github.com/broxus/everscale-types.git?rev=acc7b79eee0712c48e7678ceafaf143cad2e4ca9#acc7b79eee0712c48e7678ceafaf143cad2e4ca9"
+source = "git+https://github.com/evd0kim/everscale-types.git?rev=acc7b79eee0712c48e7678ceafaf143cad2e4ca9#acc7b79eee0712c48e7678ceafaf143cad2e4ca9"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -997,7 +996,7 @@ dependencies = [
 [[package]]
 name = "everscale-types-proc"
 version = "0.1.5"
-source = "git+https://github.com/broxus/everscale-types.git?rev=acc7b79eee0712c48e7678ceafaf143cad2e4ca9#acc7b79eee0712c48e7678ceafaf143cad2e4ca9"
+source = "git+https://github.com/evd0kim/everscale-types.git?rev=acc7b79eee0712c48e7678ceafaf143cad2e4ca9#acc7b79eee0712c48e7678ceafaf143cad2e4ca9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2868,6 +2867,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
+name = "streebog"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e7fe6ed8a42cec360e070309427bb7959e102849b0dbaa7de19d5b9860bd536"
+dependencies = [
+ "digest",
+]
+
+[[package]]
 name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3838,8 +3846,8 @@ dependencies = [
  "rlimit",
  "scopeguard",
  "serde",
- "sha2",
  "smallvec",
+ "streebog",
  "sysinfo",
  "tempfile",
  "thiserror 2.0.11",

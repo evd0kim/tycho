@@ -84,7 +84,7 @@ scopeguard = "1.2"
 serde = "1.0"
 serde_json = "1.0.114"
 serde_path_to_error = "0.1"
-sha2 = "0.10.8"
+streebog = "0.10.2"
 smallvec = "1.13.1"
 socket2 = "0.5"
 sysinfo = "0.30.5"
@@ -135,7 +135,8 @@ tycho-storage = { path = "./storage", version = "0.2.7" }
 tycho-util = { path = "./util", version = "0.2.7" }
 
 [patch.crates-io]
-everscale-types = { git = "https://github.com/broxus/everscale-types.git", rev = "acc7b79eee0712c48e7678ceafaf143cad2e4ca9" }
+everscale-types = { git = "https://github.com/evd0kim/everscale-types.git", rev = "acc7b79eee0712c48e7678ceafaf143cad2e4ca9" }
+everscale-crypto = { git = "https://github.com/evd0kim/everscale-crypto.git", rev = "69fbdaf97513cc247d5e50d926059e0b35facf2a" }
 
 [workspace.lints.rust]
 future_incompatible = "warn"
@@ -230,7 +231,7 @@ opt-level = 3
 opt-level = 3
 [profile.dev.package.rand]
 opt-level = 3
-[profile.dev.package.sha2]
+[profile.dev.package.streebog]
 opt-level = 3
 [profile.dev.package.everscale-crypto]
 opt-level = 3
