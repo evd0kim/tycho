@@ -31,7 +31,7 @@ async fn persistent_shard_state() -> Result<()> {
         shard: ShardIdent::MASTERCHAIN,
         seqno: 0,
         root_hash: *zerostate_root.repr_hash(),
-        file_hash: Boc::file_hash_blake(ZEROSTATE_BOC),
+        file_hash: Boc::file_hash(ZEROSTATE_BOC),
     };
 
     let zerostate = ShardStateStuff::from_root(

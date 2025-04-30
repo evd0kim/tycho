@@ -81,7 +81,7 @@ impl ShardStateStuff {
     ) -> Result<Self> {
         anyhow::ensure!(zerostate_id.seqno == 0, "given id has a non-zero seqno");
 
-        let file_hash = Boc::file_hash_blake(bytes);
+        let file_hash = Boc::file_hash(bytes);
         anyhow::ensure!(
             zerostate_id.file_hash.as_slice() == file_hash.as_slice(),
             "file_hash mismatch. Expected: {}, got: {}",

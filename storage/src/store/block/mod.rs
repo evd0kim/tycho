@@ -482,7 +482,7 @@ impl BlockStorage {
                 break Some(id.block_id.as_short_id());
             }
 
-            let file_hash = Boc::file_hash_blake(value);
+            let file_hash = Boc::file_hash(value);
             let block_id = id.block_id.make_full(file_hash);
 
             bytes += value.len();
@@ -1747,14 +1747,14 @@ mod tests {
         for seqno in 0..1000 {
             let block = BlockStuff::new_empty(shard, seqno);
             let block = {
-                let data = BocRepr::encode_rayon(block.as_ref()).unwrap();
+                let data = BocRepr::encode(block.as_ref()).unwrap();
                 WithArchiveData::new(block, data)
             };
             let block_id = block.id();
 
             let proof = BlockProofStuff::new_empty(block_id);
             let proof = {
-                let data = BocRepr::encode_rayon(proof.as_ref()).unwrap();
+                let data = BocRepr::encode(proof.as_ref()).unwrap();
                 WithArchiveData::new(proof, data)
             };
 

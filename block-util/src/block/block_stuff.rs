@@ -63,7 +63,7 @@ impl BlockStuff {
 
         let root = CellBuilder::build_from(&block).unwrap();
         let root_hash = *root.repr_hash();
-        let file_hash = Boc::file_hash_blake(Boc::encode(&root));
+        let file_hash = Boc::file_hash(Boc::encode(&root));
 
         let block_id = BlockId {
             shard: block_info.shard,
@@ -92,7 +92,7 @@ impl BlockStuff {
     }
 
     pub fn deserialize_checked(id: &BlockId, data: &[u8]) -> Result<Self> {
-        let file_hash = Boc::file_hash_blake(data);
+        let file_hash = Boc::file_hash(data);
         anyhow::ensure!(
             id.file_hash.as_slice() == file_hash.as_slice(),
             "file_hash mismatch for {id}"

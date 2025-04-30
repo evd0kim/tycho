@@ -39,12 +39,12 @@ impl Parser {
         payloads: Vec<&[u8]>,
     ) -> ParserOutput {
         let _guard = HistogramGuard::begin("tycho_mempool_adapter_parse_anchor_history_time");
-
+        use streebog::Digest;
         let all_bytes_blake = payloads
             .into_par_iter()
             .filter_map(|bytes| {
                 (bytes.len() <= ExtMsgRepr::MAX_BOC_SIZE)
-                    .then(|| (<[u8; 32]>::from(blake3::hash(bytes)), bytes))
+                    .then(|| (<[u8; 32]>::from(streebog::Streebog256::digest(bytes)), bytes))
             })
             .collect::<Vec<_>>();
 

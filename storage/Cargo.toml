@@ -32,7 +32,6 @@ rand = { workspace = true }
 rlimit = { workspace = true }
 scopeguard = { workspace = true }
 serde = { workspace = true }
-sha2 = { workspace = true }
 smallvec = { workspace = true }
 sysinfo = { workspace = true }
 tempfile = { workspace = true }
@@ -42,6 +41,8 @@ tokio = { workspace = true, features = ["rt", "fs", "io-util"] }
 tracing = { workspace = true }
 triomphe = { workspace = true }
 weedb = { workspace = true }
+
+streebog = { workspace = true }
 
 # local deps
 tycho-block-util = { workspace = true }

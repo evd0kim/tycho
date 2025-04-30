@@ -11,7 +11,8 @@ use tycho_network::{try_handle_prefix_with_offset, PeerId};
 
 use crate::engine::MempoolConfig;
 use crate::models::point::body::PointBody;
-use crate::models::point::{AnchorStageRole, Digest, Link, PointData, PointId, Round, Signature};
+use crate::models::point::{AnchorStageRole, Link, PointData, PointId, Round, Signature};
+use crate::models::point::Digest as DigestModel;
 
 #[derive(Clone, TlWrite, TlRead)]
 pub struct Point(Arc<PointInner>);
@@ -20,7 +21,7 @@ pub struct Point(Arc<PointInner>);
 #[tl(boxed, id = "consensus.pointInner", scheme = "proto.tl")]
 struct PointInner {
     // hash of everything except signature
-    digest: Digest,
+    digest: DigestModel,
     // author's signature for the digest
     signature: Signature,
     body: PointBody,
@@ -41,12 +42,12 @@ impl Point {
 
     pub fn max_byte_size(consensus_config: &ConsensusConfig) -> usize {
         // 4 bytes of Point tag
-        // 32 bytes of Digest
+        // 32 bytes of DigestModel
         // 64 bytes of Signature
 
         // Point body size
 
-        4 + Digest::MAX_TL_BYTES
+        4 + DigestModel::MAX_TL_BYTES
             + Signature::MAX_TL_BYTES
             + PointBody::max_byte_size(consensus_config)
     }
@@ -79,7 +80,7 @@ impl Point {
         }))
     }
 
-    pub fn digest(&self) -> &'_ Digest {
+    pub fn digest(&self) -> &'_ DigestModel {
         &self.0.digest
     }
 
@@ -186,7 +187,7 @@ impl Point {
             return Err(TlError::UnknownConstructor);
         }
         // skip 32 + 64 bytes of digest and signature
-        <[u8; Digest::MAX_TL_BYTES + Signature::MAX_TL_BYTES]>::read_from(&mut data)?;
+        <[u8; DigestModel::MAX_TL_BYTES + Signature::MAX_TL_BYTES]>::read_from(&mut data)?;
         let PointBodyPrefix { payload, .. } = <_>::read_from(&mut data)?;
 
         Ok(payload
@@ -201,13 +202,14 @@ impl Point {
     }
 
     pub fn verify_hash_inner(data: &[u8]) -> Result<(), TlError> {
+        use streebog::Digest;
         let (constructor, mut data) = try_handle_prefix_with_offset(&data)?;
         if constructor != Point::TL_ID {
             return Err(TlError::UnknownConstructor);
         }
-        let hash = <[u8; Digest::MAX_TL_BYTES]>::read_from(&mut data)?;
+        let hash = <[u8; DigestModel::MAX_TL_BYTES]>::read_from(&mut data)?;
         <[u8; Signature::MAX_TL_BYTES]>::read_from(&mut data)?;
-        if hash == <[u8; Digest::MAX_TL_BYTES]>::from(blake3::hash(data)) {
+        if hash == <[u8; DigestModel::MAX_TL_BYTES]>::from(streebog::Streebog256::digest(data)) {
             Ok(())
         } else {
             Err(TlError::InvalidData)
@@ -217,7 +219,7 @@ impl Point {
 
 #[derive(Debug)]
 pub struct PrevPointProof {
-    pub digest: Digest,
+    pub digest: DigestModel,
     pub evidence: BTreeMap<PeerId, Signature>,
 }
 
@@ -264,14 +266,14 @@ mod tests {
             payload.push(Bytes::copy_from_slice(&bytes));
         }
 
-        let prev_digest = Digest::new(&[42]);
+        let prev_digest = DigestModel::new(&[42]);
         let mut includes = BTreeMap::default();
         let mut evidence = BTreeMap::default();
         for _ in 0..PEERS {
             let key_pair = new_key_pair();
             let peer_id = PeerId::from(key_pair.public_key);
             thread_rng().fill_bytes(bytes.as_mut_slice());
-            let digest = Digest::new(&bytes);
+            let digest = DigestModel::new(&bytes);
             includes.insert(peer_id, digest);
             evidence.insert(peer_id, Signature::new(&key_pair, &prev_digest));
         }
@@ -283,15 +285,15 @@ mod tests {
                 time: UnixTime::now(),
                 includes,
                 witness: BTreeMap::from([
-                    (PeerId([1; 32]), Digest::new(&[1])),
-                    (PeerId([2; 32]), Digest::new(&[2])),
+                    (PeerId([1; 32]), DigestModel::new(&[1])),
+                    (PeerId([2; 32]), DigestModel::new(&[2])),
                 ]),
                 anchor_trigger: Link::Direct(Through::Witness(PeerId([1; 32]))),
                 anchor_proof: Link::Indirect {
                     to: PointId {
                         author: PeerId([122; 32]),
                         round: Round(852),
-                        digest: Digest::new(&[2]),
+                        digest: DigestModel::new(&[2]),
                     },
                     path: Through::Witness(PeerId([2; 32])),
                 },
@@ -301,10 +303,10 @@ mod tests {
             payload,
         }
     }
-    fn sig_data() -> (Digest, Vec<(PeerId, Signature)>) {
+    fn sig_data() -> (DigestModel, Vec<(PeerId, Signature)>) {
         let mut bytes = vec![0; MSG_BYTES];
         thread_rng().fill_bytes(bytes.as_mut_slice());
-        let digest = Digest::new(&bytes);
+        let digest = DigestModel::new(&bytes);
         let mut data = Vec::with_capacity(PEERS);
         for _ in 0..PEERS {
             let key_pair = new_key_pair();
@@ -339,8 +341,8 @@ mod tests {
             tl_proto::deserialize(&ref_data).expect("deserialize point info from ref"),
         );
         assert_eq!(
-            Digest::new(&data),
-            Digest::new(&ref_data),
+            DigestModel::new(&data),
+            DigestModel::new(&ref_data),
             "compare serialized bytes"
         );
     }
@@ -422,7 +424,7 @@ mod tests {
         let bytes = data.freeze();
 
         let timer = Instant::now();
-        let digest = Digest::new(bytes.as_ref());
+        let digest = DigestModel::new(bytes.as_ref());
         let sha_elapsed = timer.elapsed();
         assert_eq!(&digest, point.digest(), "point digest");
 

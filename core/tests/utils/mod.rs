@@ -8,7 +8,7 @@ use tycho_util::compression::ZstdDecompressStream;
 const DATA_PATH: &str = "tests/data";
 
 pub(crate) fn parse_zerostate(data: &Vec<u8>) -> Result<ShardStateStuff> {
-    let file_hash = Boc::file_hash_blake(data);
+    let file_hash = Boc::file_hash(data);
 
     let root = Boc::decode(data).context("failed to decode BOC")?;
     let root_hash = *root.repr_hash();

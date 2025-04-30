@@ -73,7 +73,7 @@ pub async fn prepare_test_storage() -> anyhow::Result<(Storage, tempfile::TempDi
 
     // first master block
     let root = CellBuilder::build_from(&master_block)?;
-    let data = everscale_types::boc::Boc::encode_rayon(&root);
+    let data = everscale_types::boc::Boc::encode(&root);
     let block_stuff =
         BlockStuff::from_block_and_root(&master_block_id, master_block, root, data.len());
     let handle = storage
@@ -119,7 +119,7 @@ pub async fn prepare_test_storage() -> anyhow::Result<(Storage, tempfile::TempDi
 
         let root = CellBuilder::build_from(&state)?;
         let root_hash = *root.repr_hash();
-        let file_hash = Boc::file_hash_blake(Boc::encode(&root));
+        let file_hash = Boc::file_hash(Boc::encode(&root));
 
         let block_id = BlockId {
             shard: state.shard_ident,

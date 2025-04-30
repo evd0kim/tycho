@@ -183,7 +183,7 @@ impl ControlServerBuilder {
                 global_id: mc_state.as_ref().global_id,
                 mc_seqno: mc_state.block_id().seqno,
                 gen_utime: mc_state.as_ref().gen_utime,
-                config: BocRepr::encode_rayon(config)?.into(),
+                config: BocRepr::encode(config)?.into(),
             }))
         };
 
@@ -562,7 +562,7 @@ impl proto::ControlServer for ControlServer {
         };
 
         // TODO: Store serialized instead?
-        let state = BocRepr::encode_rayon(match &account {
+        let state = BocRepr::encode(match &account {
             None => empty_shard_account(),
             Some(account) => &account.account,
         })?
@@ -801,7 +801,7 @@ impl Inner {
                 global_id: cx.state.as_ref().global_id,
                 mc_seqno: block_id.seqno,
                 gen_utime: cx.state.as_ref().gen_utime,
-                config: BocRepr::encode_rayon(config)?.into(),
+                config: BocRepr::encode(config)?.into(),
             });
             self.config_response.store(Some(config_response));
         } else {

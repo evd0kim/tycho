@@ -22,7 +22,7 @@ harness = false
 anyhow = { workspace = true }
 arc-swap = { workspace = true }
 bytes = { workspace = true }
-everscale-types = { workspace = true, features = ["blake3", "rayon"] }
+everscale-types = { workspace = true, features = ["gost"] }
 hex = { workspace = true }
 parking_lot = { workspace = true }
 rayon = { workspace = true }

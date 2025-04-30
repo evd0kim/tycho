@@ -424,7 +424,7 @@ impl StateNodeAdapterStdImpl {
 
                 let block_proof_stuff = BlockProofStuff::from_proof(proof);
 
-                let proof_boc = BocRepr::encode_rayon(block_proof_stuff.as_ref())
+                let proof_boc = BocRepr::encode(block_proof_stuff.as_ref())
                     .expect("valid block proof must be successfully serialized");
                 let archive_data = block_proof_stuff.with_archive_data(proof_boc);
 
