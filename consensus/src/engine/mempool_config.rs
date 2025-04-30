@@ -120,6 +120,7 @@ impl MempoolConfigBuilder {
     }
 
     pub fn build(&self) -> Result<MempoolMergedConfig> {
+        use streebog::Digest;
         let genesis_info = *self
             .genesis_info
             .as_ref()
@@ -140,7 +141,7 @@ impl MempoolConfigBuilder {
 
         // reset types to u128 as it does not match fields in `ConsensusConfig`
         // and may be changed just to keep them handy, that must not affect hash
-        let mut hasher = blake3::Hasher::new();
+        let mut hasher = streebog::Streebog256::new();
         // unaligned `genesis_info.start_round` is not used
         hasher.update(&(genesis_round.0 as u128).to_be_bytes());
         hasher.update(&(genesis_info.genesis_millis as u128).to_be_bytes());

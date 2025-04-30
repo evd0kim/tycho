@@ -178,7 +178,7 @@ mod base_migrations {
                     break 'item;
                 }
 
-                let file_hash = Boc::file_hash_blake(value);
+                let file_hash = Boc::file_hash(value);
                 batch.put_cf(full_block_ids_cf, key.block_id.to_vec(), file_hash);
                 block_ids_created += 1;
             }

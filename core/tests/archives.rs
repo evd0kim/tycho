@@ -220,7 +220,7 @@ async fn prepare_storage(config: StorageConfig, zerostate: ShardStateStuff) -> R
 
         let root = CellBuilder::build_from(&state)?;
         let root_hash = *root.repr_hash();
-        let file_hash = Boc::file_hash_blake(Boc::encode(&root));
+        let file_hash = Boc::file_hash(Boc::encode(&root));
 
         let block_id = BlockId {
             shard: state.shard_ident,

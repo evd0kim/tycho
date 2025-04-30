@@ -569,12 +569,12 @@ impl Phase<FinalizeState> {
             // TODO: Check (assert) whether the serialized block contains usage cells
             let root = CellBuilder::build_from(&block)?;
 
-            let data = everscale_types::boc::Boc::encode_rayon(&root);
+            let data = everscale_types::boc::Boc::encode(&root);
             let block_id = BlockId {
                 shard: self.state.collation_data.block_id_short.shard,
                 seqno: self.state.collation_data.block_id_short.seqno,
                 root_hash: *root.repr_hash(),
-                file_hash: Boc::file_hash_blake(&data),
+                file_hash: Boc::file_hash(&data),
             };
 
             build_block_elapsed = histogram.finish();

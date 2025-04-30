@@ -96,7 +96,7 @@ fn generate_zerostate(
 
     let root_hash = *boc.repr_hash();
     let data = Boc::encode(&boc);
-    let file_hash = Boc::file_hash_blake(&data);
+    let file_hash = Boc::file_hash(&data);
 
     std::fs::write(output_path, data).context("failed to write masterchain zerostate")?;
 
@@ -170,7 +170,7 @@ impl ZerostateConfig {
                 let cell = CellBuilder::build_from(&shard_state)?;
                 workchain.zerostate_root_hash = *cell.repr_hash();
                 let bytes = Boc::encode(&cell);
-                workchain.zerostate_file_hash = Boc::file_hash_blake(bytes);
+                workchain.zerostate_file_hash = Boc::file_hash(bytes);
 
                 workchains.set(id, &workchain)?;
                 updated = true;

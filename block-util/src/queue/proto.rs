@@ -49,7 +49,7 @@ impl QueueDiff {
 
     /// Computes the hash of the serialized diff.
     pub fn compute_hash(data: &[u8]) -> HashBytes {
-        Boc::file_hash_blake(data)
+        Boc::file_hash(data)
     }
 }
 

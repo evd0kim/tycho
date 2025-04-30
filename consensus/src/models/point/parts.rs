@@ -31,7 +31,8 @@ impl Debug for Digest {
 
 impl Digest {
     pub(super) fn new(bytes: &[u8]) -> Self {
-        Self(blake3::hash(bytes).into())
+        use streebog::Digest;
+        Self(streebog::Streebog256::digest(bytes).into())
     }
     // TODO encode DB key with TL and remove this method
     pub fn wrap(value: [u8; 32]) -> Self {
