@@ -2095,16 +2095,19 @@ impl TestProcessedToStuff {
             partitions: processed_to_info
                 .iter()
                 .map(|(par_id, par)| {
-                    (*par_id, ProcessedUptoPartitionStuff {
-                        internals: InternalsProcessedUptoStuff {
-                            processed_to: par
-                                .iter()
-                                .map(|(shard, (_, to_key))| (*shard, *to_key))
-                                .collect(),
+                    (
+                        *par_id,
+                        ProcessedUptoPartitionStuff {
+                            internals: InternalsProcessedUptoStuff {
+                                processed_to: par
+                                    .iter()
+                                    .map(|(shard, (_, to_key))| (*shard, *to_key))
+                                    .collect(),
+                                ..Default::default()
+                            },
                             ..Default::default()
                         },
-                        ..Default::default()
-                    })
+                    )
                 })
                 .collect(),
         }
@@ -2532,6 +2535,9 @@ impl TestStateNodeAdapter {
         let root_hash = *root.repr_hash();
         let data = Boc::encode(&root);
         let data_size = data.len();
+        #[cfg(feature = "gost")]
+        let file_hash = Boc::file_hash(Boc::encode(&root));
+        #[cfg(not(feature = "gost"))]
         let file_hash = Boc::file_hash_blake(Boc::encode(&root));
 
         let block_id = BlockId {

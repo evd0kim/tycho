@@ -3,7 +3,10 @@ use std::net::Ipv4Addr;
 use std::sync::Arc;
 use std::time::Duration;
 
-use everscale_crypto::ed25519;
+#[cfg(not(feature = "gost"))]
+use everscale_crypto::ed25519::{PublicKey, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{PublicKey, SecretKey};
 use futures_util::stream::FuturesUnordered;
 use futures_util::StreamExt;
 use tycho_core::blockchain_rpc::BlockchainRpcService;
@@ -22,8 +25,8 @@ pub struct NodeBase {
 
 impl NodeBase {
     pub fn with_random_key() -> Self {
-        let key = ed25519::SecretKey::generate(&mut rand::thread_rng());
-        let local_id = ed25519::PublicKey::from(&key).into();
+        let key = SecretKey::generate(&mut rand::thread_rng());
+        let local_id = PublicKey::from(&key).into();
 
         let (dht_tasks, dht_service) = DhtService::builder(local_id)
             .with_config(make_fast_dht_config())

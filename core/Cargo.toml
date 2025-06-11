@@ -44,6 +44,7 @@ tycho-storage = { workspace = true, features = ["test"] }
 tycho-util = { workspace = true, features = ["test"] }
 
 [features]
+gost = []
 test = []
 
 [lints]

@@ -266,6 +266,10 @@ impl<'a> FinalizationContext<'a> {
 
     // TODO: Somehow reuse `everscale_types::cell::CellParts`.
     fn finalize_cell(&mut self, cell_index: u32, cell: RawCell<'_>) -> Result<()> {
+        #[cfg(feature = "gost")]
+        use streebog::{Digest, Streebog256};
+
+        #[cfg(not(feature = "gost"))]
         use sha2::{Digest, Sha256};
 
         let (mut current_entry, children) = self
@@ -324,6 +328,9 @@ impl<'a> FinalizationContext<'a> {
             if level != 0 && (is_pruned_cell || !level_mask.contains(level)) {
                 continue;
             }
+            #[cfg(feature = "gost")]
+            let mut hasher = Streebog256::new();
+            #[cfg(not(feature = "gost"))]
             let mut hasher = Sha256::new();
 
             let level_mask = if is_pruned_cell {

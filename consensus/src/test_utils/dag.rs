@@ -4,7 +4,10 @@ use std::convert::identity;
 use std::sync::Arc;
 
 use bytes::Bytes;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use futures_util::FutureExt;
 use rand::prelude::SliceRandom;
 use rand::{thread_rng, RngCore};

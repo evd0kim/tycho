@@ -122,6 +122,9 @@ pub async fn prepare_test_storage() -> anyhow::Result<(Storage, tempfile::TempDi
 
         let root = CellBuilder::build_from(&state)?;
         let root_hash = *root.repr_hash();
+        #[cfg(feature = "gost")]
+        let file_hash = Boc::file_hash(Boc::encode(&root));
+        #[cfg(not(feature = "gost"))]
         let file_hash = Boc::file_hash_blake(Boc::encode(&root));
 
         let block_id = BlockId {
@@ -134,14 +137,14 @@ pub async fn prepare_test_storage() -> anyhow::Result<(Storage, tempfile::TempDi
         let shard_state_stuff =
             ShardStateStuff::from_root(&block_id, root, shard_states.min_ref_mc_state())?;
 
-        let (handle, _) =
-            storage
-                .block_handle_storage()
-                .create_or_load_handle(&block_id, NewBlockMeta {
-                    is_key_block: false,
-                    gen_utime: shard_state_stuff.state().gen_utime,
-                    ref_by_mc_seqno: master_block_id.seqno,
-                });
+        let (handle, _) = storage.block_handle_storage().create_or_load_handle(
+            &block_id,
+            NewBlockMeta {
+                is_key_block: false,
+                gen_utime: shard_state_stuff.state().gen_utime,
+                ref_by_mc_seqno: master_block_id.seqno,
+            },
+        );
 
         shard_states
             .store_state(&handle, &shard_state_stuff, Default::default())

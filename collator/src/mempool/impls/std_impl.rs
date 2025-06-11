@@ -10,7 +10,10 @@ use std::sync::Arc;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use bytes::Bytes;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use futures_util::FutureExt;
 use tokio::sync::{mpsc, oneshot, Mutex};
 use tracing::Instrument;

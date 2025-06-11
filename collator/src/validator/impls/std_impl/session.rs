@@ -8,7 +8,10 @@ use std::task::{Context, Poll, Waker};
 use anyhow::Result;
 use arc_swap::ArcSwapOption;
 use backon::BackoffBuilder;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use everscale_types::models::*;
 use futures_util::stream::FuturesUnordered;
 use futures_util::{Future, StreamExt};

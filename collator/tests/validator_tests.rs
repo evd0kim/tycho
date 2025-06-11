@@ -2,7 +2,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::{Context, Result};
-use everscale_crypto::ed25519;
+#[cfg(not(feature = "gost"))]
+use everscale_crypto::ed25519::{KeyPair, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{KeyPair, SecretKey};
 use everscale_types::cell::HashBytes;
 use everscale_types::models::{BlockId, ShardIdent, ValidatorDescription};
 use futures_util::StreamExt;
@@ -24,8 +27,8 @@ struct ValidatorNode {
 
 impl ValidatorNode {
     fn generate(zerostate_id: &BlockId, rng: &mut impl rand::Rng) -> Self {
-        let secret_key = ed25519::SecretKey::generate(rng);
-        let keypair = Arc::new(ed25519::KeyPair::from(&secret_key));
+        let secret_key = SecretKey::generate(rng);
+        let keypair = Arc::new(KeyPair::from(&secret_key));
 
         let validator_network = common::make_validator_network(&secret_key, zerostate_id);
         let validator_descr = BriefValidatorDescr {

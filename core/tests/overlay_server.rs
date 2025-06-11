@@ -281,11 +281,15 @@ async fn overlay_server_persistent_state() -> Result<()> {
     // Prepare zerostate
     static ZEROSTATE_BOC: &[u8] = include_bytes!("../tests/data/zerostate.boc");
     let zerostate_root = Boc::decode(ZEROSTATE_BOC)?;
+    #[cfg(feature = "gost")]
+    let file_hash = Boc::file_hash(ZEROSTATE_BOC);
+    #[cfg(not(feature = "gost"))]
+    let file_hash = Boc::file_hash_blake(ZEROSTATE_BOC);
     let zerostate_id = BlockId {
         shard: ShardIdent::MASTERCHAIN,
         seqno: 0,
         root_hash: *zerostate_root.repr_hash(),
-        file_hash: Boc::file_hash_blake(ZEROSTATE_BOC),
+        file_hash,
     };
 
     // Write zerostate to db

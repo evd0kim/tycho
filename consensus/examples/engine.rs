@@ -6,7 +6,10 @@ use std::thread::JoinHandle as StdJoinHandle;
 use std::time::Duration;
 
 use clap::Parser;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::{KeyPair, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{KeyPair, SecretKey};
 use futures_util::FutureExt;
 use parking_lot::deadlock;
 use tokio::sync::{mpsc, oneshot, Notify};

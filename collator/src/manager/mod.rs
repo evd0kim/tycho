@@ -4,7 +4,11 @@ use std::sync::Arc;
 use ahash::HashMapExt;
 use anyhow::{anyhow, bail, Context, Result};
 use async_trait::async_trait;
+
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use everscale_types::models::{
     BlockId, BlockIdShort, CollationConfig, ProcessedUptoInfo, ShardIdent, ValidatorDescription,
 };
@@ -3002,10 +3006,13 @@ where
                 self.blocks_cache.set_gc_to_boundary(&to_blocks_keys);
 
                 // send to sync only if was not received from bc
-                if matches!(&master_block.data, BlockCacheEntryData::Collated {
-                    received_after_collation: false,
-                    ..
-                }) {
+                if matches!(
+                    &master_block.data,
+                    BlockCacheEntryData::Collated {
+                        received_after_collation: false,
+                        ..
+                    }
+                ) {
                     let histogram =
                         HistogramGuard::begin("tycho_collator_send_blocks_to_sync_time");
 

@@ -48,6 +48,13 @@ impl QueueDiff {
     }
 
     /// Computes the hash of the serialized diff.
+    #[cfg(feature = "gost")]
+    pub fn compute_hash(data: &[u8]) -> HashBytes {
+        Boc::file_hash(data)
+    }
+
+    /// Computes the hash of the serialized diff.
+    #[cfg(not(feature = "gost"))]
     pub fn compute_hash(data: &[u8]) -> HashBytes {
         Boc::file_hash_blake(data)
     }
@@ -691,14 +698,20 @@ mod tests {
             shard_ident: ShardIdent::MASTERCHAIN,
             seqno: 123,
             processed_to: BTreeMap::from([
-                (ShardIdent::MASTERCHAIN, QueueKey {
-                    lt: 1,
-                    hash: HashBytes::from([0x11; 32]),
-                }),
-                (ShardIdent::BASECHAIN, QueueKey {
-                    lt: 123123,
-                    hash: HashBytes::from([0x22; 32]),
-                }),
+                (
+                    ShardIdent::MASTERCHAIN,
+                    QueueKey {
+                        lt: 1,
+                        hash: HashBytes::from([0x11; 32]),
+                    },
+                ),
+                (
+                    ShardIdent::BASECHAIN,
+                    QueueKey {
+                        lt: 123123,
+                        hash: HashBytes::from([0x22; 32]),
+                    },
+                ),
             ]),
             min_message: QueueKey {
                 lt: 1,
@@ -749,14 +762,20 @@ mod tests {
                 shard_ident: ShardIdent::MASTERCHAIN,
                 seqno,
                 processed_to: BTreeMap::from([
-                    (ShardIdent::MASTERCHAIN, QueueKey {
-                        lt: 10 * seqno as u64,
-                        hash: HashBytes::from([seqno as u8; 32]),
-                    }),
-                    (ShardIdent::BASECHAIN, QueueKey {
-                        lt: 123123 * seqno as u64,
-                        hash: HashBytes::from([seqno as u8 * 2; 32]),
-                    }),
+                    (
+                        ShardIdent::MASTERCHAIN,
+                        QueueKey {
+                            lt: 10 * seqno as u64,
+                            hash: HashBytes::from([seqno as u8; 32]),
+                        },
+                    ),
+                    (
+                        ShardIdent::BASECHAIN,
+                        QueueKey {
+                            lt: 123123 * seqno as u64,
+                            hash: HashBytes::from([seqno as u8 * 2; 32]),
+                        },
+                    ),
                 ]),
                 min_message: QueueKey {
                     lt: 1,

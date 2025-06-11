@@ -2,7 +2,10 @@ use std::num::{NonZeroU16, NonZeroU8};
 use std::sync::OnceLock;
 
 use anyhow::{ensure, Context, Result};
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::{KeyPair, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{KeyPair, SecretKey};
 use everscale_types::models::{ConsensusConfig, GenesisInfo};
 use serde::{Deserialize, Serialize};
 use tycho_network::{OverlayId, PeerId};

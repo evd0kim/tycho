@@ -4,7 +4,10 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use clap::Args;
-use everscale_crypto::ed25519;
+#[cfg(not(feature = "gost"))]
+use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use everscale_types::models::*;
 use tycho_core::block_strider::{
     BlockProvider, BlockStrider, BlockSubscriber, BlockSubscriberExt, ColdBootType,
@@ -117,7 +120,7 @@ impl<C> Node<C> {
         C: Clone,
     {
         // Setup network
-        let keypair = Arc::new(ed25519::KeyPair::from(&keys.as_secret()));
+        let keypair = Arc::new(KeyPair::from(&keys.as_secret()));
         let local_id = keypair.public_key.into();
 
         let config = node_config.clone();

@@ -419,12 +419,14 @@ impl StarterInner {
         let persistent_states = self.storage.persistent_state_storage();
 
         for state in to_import {
-            let (handle, status) =
-                handle_storage.create_or_load_handle(state.block_id(), NewBlockMeta {
+            let (handle, status) = handle_storage.create_or_load_handle(
+                state.block_id(),
+                NewBlockMeta {
                     is_key_block: state.block_id().is_masterchain(),
                     gen_utime,
                     ref_by_mc_seqno: 0,
-                });
+                },
+            );
 
             let stored = state_storage
                 .store_state(&handle, &state, Default::default())
@@ -720,11 +722,14 @@ impl StarterInner {
             let block_handle = match block_handle {
                 Some(handle) => handle,
                 None => {
-                    let (handle, _) = block_handles.create_or_load_handle(block_id, NewBlockMeta {
-                        is_key_block: block_id.is_masterchain(),
-                        gen_utime: state.as_ref().gen_utime,
-                        ref_by_mc_seqno: mc_block_id.seqno,
-                    });
+                    let (handle, _) = block_handles.create_or_load_handle(
+                        block_id,
+                        NewBlockMeta {
+                            is_key_block: block_id.is_masterchain(),
+                            gen_utime: state.as_ref().gen_utime,
+                            ref_by_mc_seqno: mc_block_id.seqno,
+                        },
+                    );
                     handle
                 }
             };
@@ -888,6 +893,9 @@ fn make_shard_state(
 
     let root = CellBuilder::build_from(&state)?;
     let root_hash = *root.repr_hash();
+    #[cfg(feature = "gost")]
+    let file_hash = Boc::file_hash(Boc::encode(&root));
+    #[cfg(not(feature = "gost"))]
     let file_hash = Boc::file_hash_blake(Boc::encode(&root));
 
     let block_id = BlockId {

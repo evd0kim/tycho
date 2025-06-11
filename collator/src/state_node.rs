@@ -648,14 +648,22 @@ fn process_signatures(
             .iter()
             .enumerate()
             .map(|(i, (key, value))| {
+                #[cfg(feature = "gost")]
+                let key_hash = tl_proto::hash(everscale_crypto::tl::PublicKey::Gost256 {
+                    key: key.as_bytes(),
+                });
+                #[cfg(not(feature = "gost"))]
                 let key_hash = tl_proto::hash(everscale_crypto::tl::PublicKey::Ed25519 {
                     key: key.as_bytes(),
                 });
 
-                (i as u16, BlockSignature {
-                    node_id_short: key_hash.into(),
-                    signature: Signature(*value.as_ref()),
-                })
+                (
+                    i as u16,
+                    BlockSignature {
+                        node_id_short: key_hash.into(),
+                        signature: Signature(*value.as_ref()),
+                    },
+                )
             }),
         Cell::empty_context(),
     )?);

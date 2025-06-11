@@ -359,6 +359,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "botan"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24d4c7647d67c53194fa0740404c6c508880aef2bfe99a9868dbb4b86f090377"
+dependencies = [
+ "botan-sys",
+]
+
+[[package]]
+name = "botan-sys"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04285fa0c094cc9961fe435b1b279183db9394844ad82ce483aa6196c0e6da38"
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -941,9 +956,8 @@ dependencies = [
 [[package]]
 name = "everscale-crypto"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0da807f69d3d795921a2aaf4bd9b449e3d280d28b104e4909890a50c40a33950"
 dependencies = [
+ "botan",
  "curve25519-dalek",
  "generic-array",
  "hex",
@@ -956,16 +970,15 @@ dependencies = [
 [[package]]
 name = "everscale-types"
 version = "0.1.2"
-source = "git+https://github.com/broxus/everscale-types.git?rev=cd1c9b1d9f8290a679eabea896a5a31a47715833#cd1c9b1d9f8290a679eabea896a5a31a47715833"
 dependencies = [
  "ahash",
  "anyhow",
  "base64",
  "bitflags",
  "blake3",
+ "botan",
  "bytes",
  "crc32c",
- "ed25519-dalek",
  "everscale-crypto",
  "everscale-types-abi-proc",
  "everscale-types-proc",
@@ -978,6 +991,7 @@ dependencies = [
  "serde",
  "sha2",
  "smallvec",
+ "streebog",
  "thiserror 2.0.11",
  "tl-proto",
  "typeid",
@@ -986,7 +1000,6 @@ dependencies = [
 [[package]]
 name = "everscale-types-abi-proc"
 version = "0.1.0"
-source = "git+https://github.com/broxus/everscale-types.git?rev=cd1c9b1d9f8290a679eabea896a5a31a47715833#cd1c9b1d9f8290a679eabea896a5a31a47715833"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -997,7 +1010,6 @@ dependencies = [
 [[package]]
 name = "everscale-types-proc"
 version = "0.1.5"
-source = "git+https://github.com/broxus/everscale-types.git?rev=cd1c9b1d9f8290a679eabea896a5a31a47715833#cd1c9b1d9f8290a679eabea896a5a31a47715833"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2868,6 +2880,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
+name = "streebog"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e7fe6ed8a42cec360e070309427bb7959e102849b0dbaa7de19d5b9860bd536"
+dependencies = [
+ "digest",
+]
+
+[[package]]
 name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3840,6 +3861,7 @@ dependencies = [
  "serde",
  "sha2",
  "smallvec",
+ "streebog",
  "sysinfo",
  "tempfile",
  "thiserror 2.0.11",

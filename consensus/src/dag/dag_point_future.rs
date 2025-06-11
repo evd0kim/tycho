@@ -3,7 +3,10 @@ use std::sync::{Arc, LazyLock};
 use std::task::{Context, Poll};
 
 use ahash::HashMapExt;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use futures_util::future::{BoxFuture, Either};
 use futures_util::{future, FutureExt};
 use tokio::sync::{mpsc, oneshot};

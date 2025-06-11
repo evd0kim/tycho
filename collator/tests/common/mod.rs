@@ -1,16 +1,19 @@
 use std::net::Ipv4Addr;
 use std::time::Duration;
 
-use everscale_crypto::ed25519;
+#[cfg(not(feature = "gost"))]
+use everscale_crypto::ed25519::{PublicKey, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{PublicKey, SecretKey};
 use everscale_types::models::BlockId;
 use tycho_collator::validator::ValidatorNetworkContext;
 use tycho_network::{DhtConfig, DhtService, Network, OverlayService, PeerId, Router};
 
 pub fn make_validator_network(
-    secret_key: &ed25519::SecretKey,
+    secret_key: &SecretKey,
     zerostate_id: &BlockId,
 ) -> ValidatorNetworkContext {
-    let public_key = ed25519::PublicKey::from(secret_key);
+    let public_key = PublicKey::from(secret_key);
     let local_id = PeerId::from(public_key);
 
     let (_, overlay_service) = OverlayService::builder(local_id).build();

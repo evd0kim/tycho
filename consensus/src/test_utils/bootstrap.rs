@@ -1,6 +1,9 @@
 use std::num::NonZeroU16;
 
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::{KeyPair, PublicKey, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{KeyPair, PublicKey, SecretKey};
 use everscale_types::models::{ConsensusConfig, GenesisInfo};
 use tycho_network::{
     Address, DhtClient, DhtConfig, DhtService, Network, NetworkConfig, OverlayConfig,

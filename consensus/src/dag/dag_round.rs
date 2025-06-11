@@ -1,7 +1,10 @@
 use std::cmp;
 use std::sync::{Arc, Weak};
 
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use tycho_network::PeerId;
 use tycho_util::FastDashMap;
 

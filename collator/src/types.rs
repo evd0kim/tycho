@@ -4,7 +4,10 @@ use std::fmt;
 use std::sync::Arc;
 
 use anyhow::Result;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use everscale_types::models::*;
 use everscale_types::prelude::*;
 use processed_upto::{ProcessedUptoInfoExtension, ProcessedUptoInfoStuff};

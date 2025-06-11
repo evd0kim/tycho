@@ -47,6 +47,8 @@ weedb = { workspace = true }
 tycho-block-util = { workspace = true }
 tycho-util = { workspace = true }
 
+streebog = { workspace = true, optional = true }
+
 [dev-dependencies]
 anyhow = { workspace = true, features = ["backtrace"] }
 bytesize = { workspace = true }
@@ -58,6 +60,7 @@ tycho-block-util = { workspace = true, features = ["test"] }
 tycho-util = { workspace = true, features = ["test"] }
 
 [features]
+gost = ["dep:streebog"]
 test = ["tycho-block-util/test"]
 
 [lints]

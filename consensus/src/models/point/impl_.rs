@@ -3,7 +3,10 @@ use std::sync::Arc;
 
 use bumpalo::Bump;
 use bytes::Bytes;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use everscale_types::models::ConsensusConfig;
 use tl_proto::{TlError, TlRead, TlWrite};
 use tycho_network::PeerId;
@@ -187,7 +190,10 @@ pub mod test_point {
     use std::collections::BTreeMap;
 
     use bytes::Bytes;
+    #[cfg(not(feature = "gost"))]
     use everscale_crypto::ed25519::SecretKey;
+    #[cfg(feature = "gost")]
+    use everscale_crypto::gost256::SecretKey;
     use rand::{thread_rng, Rng, RngCore};
 
     use super::*;

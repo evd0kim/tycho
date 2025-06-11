@@ -38,10 +38,15 @@ thiserror = { workspace = true }
 tl-proto = { workspace = true }
 tokio = { workspace = true, default-features = false }
 tokio-stream = { workspace = true, optional = true }
-tokio-util = { workspace = true, default-features = false, features = ["time", "rt"] }
+tokio-util = { workspace = true, default-features = false, features = [
+    "time",
+    "rt",
+] }
 tracing = { workspace = true }
 tracing-flame = { workspace = true, optional = true }
-tracing-subscriber = { workspace = true, features = ["env-filter"], optional = true }
+tracing-subscriber = { workspace = true, features = [
+    "env-filter",
+], optional = true }
 weedb = { workspace = true }
 
 # local deps
@@ -57,7 +62,10 @@ tikv-jemallocator = { workspace = true, features = [
     "unprefixed_malloc_on_supported_platforms",
     "background_threads",
 ] }
-tokio = { workspace = true, default-features = false, features = ["rt-multi-thread", "macros"] }
+tokio = { workspace = true, default-features = false, features = [
+    "rt-multi-thread",
+    "macros",
+] }
 
 # examples' dependencies
 clap = { workspace = true, features = ["wrap_help"] }
@@ -71,4 +79,10 @@ tycho-util = { workspace = true, features = ["test", "cli"] }
 workspace = true
 
 [features]
-test = ["dep:tokio-stream", "dep:hex", "dep:tracing-flame", "dep:tracing-subscriber"]
+gost = []
+test = [
+    "dep:tokio-stream",
+    "dep:hex",
+    "dep:tracing-flame",
+    "dep:tracing-subscriber",
+]

@@ -1,7 +1,10 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use everscale_crypto::ed25519;
+#[cfg(not(feature = "gost"))]
+use everscale_crypto::ed25519::{KeyPair, SecretKey};
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::{KeyPair, SecretKey};
 use everscale_types::models::BlockId;
 use futures_util::future::BoxFuture;
 use tycho_block_util::block::BlockIdRelation;
@@ -77,8 +80,8 @@ async fn test_collation_process_on_stubs() {
 
     block_strider.run().await.unwrap();
 
-    let node_1_secret = ed25519::SecretKey::generate(&mut rand::thread_rng());
-    let node_1_keypair = Arc::new(ed25519::KeyPair::from(&node_1_secret));
+    let node_1_secret = SecretKey::generate(&mut rand::thread_rng());
+    let node_1_keypair = Arc::new(KeyPair::from(&node_1_secret));
 
     let validator_network = common::make_validator_network(&node_1_secret, &zerostate_id);
 

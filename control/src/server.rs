@@ -6,8 +6,11 @@ use std::sync::{Arc, OnceLock};
 use anyhow::{Context as _, Result};
 use arc_swap::ArcSwapOption;
 use bytes::Bytes;
-use everscale_crypto::ed25519;
-use everscale_types::cell::Lazy;
+#[cfg(not(feature = "gost"))]
+use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
+use everscale_types::cell::{HashBytes512, Lazy};
 use everscale_types::models::{
     AccountState, DepthBalanceInfo, Message, OptionalAccount, ShardAccount, ShardIdent, StdAddr,
 };
@@ -156,7 +159,7 @@ pub struct ControlServerBuilder<
 > {
     mandatory_fields: MandatoryFields,
     memory_profiler: Option<Arc<dyn MemoryProfiler>>,
-    validator_keypair: Option<Arc<ed25519::KeyPair>>,
+    validator_keypair: Option<Arc<KeyPair>>,
     collator: Option<Arc<dyn Collator>>,
 }
 
@@ -286,7 +289,7 @@ impl<T> ControlServerBuilder<T> {
         self
     }
 
-    pub fn with_validator_keypair(mut self, keypair: Arc<ed25519::KeyPair>) -> Self {
+    pub fn with_validator_keypair(mut self, keypair: Arc<KeyPair>) -> Self {
         self.validator_keypair = Some(keypair);
         self
     }
@@ -339,6 +342,9 @@ impl proto::ControlServer for ControlServer {
         let validator_status = match &self.inner.validator_keypair {
             None => None,
             Some(keypair) => {
+                #[cfg(feature = "gost")]
+                let public_key = HashBytes512(keypair.public_key.to_bytes());
+                #[cfg(not(feature = "gost"))]
                 let public_key = HashBytes(keypair.public_key.to_bytes());
 
                 let parse_config = |res: proto::BlockchainConfigResponse| {
@@ -373,6 +379,9 @@ impl proto::ControlServer for ControlServer {
                         _elect_close: u32,
                         _min_stake: Tokens,
                         _total_stake: Tokens,
+                        #[cfg(feature = "gost")]
+                        members: Dict<HashBytes512, ()>,
+                        #[cfg(not(feature = "gost"))]
                         members: Dict<HashBytes, ()>,
                     }
 
@@ -761,7 +770,7 @@ struct Inner {
     blockchain_rpc_client: BlockchainRpcClient,
     manual_compaction: ManualCompaction,
     memory_profiler: Arc<dyn MemoryProfiler>,
-    validator_keypair: Option<Arc<ed25519::KeyPair>>,
+    validator_keypair: Option<Arc<KeyPair>>,
     mc_accounts: RwLock<Option<CachedAccounts>>,
     sc_accounts: RwLock<FastHashMap<ShardIdent, CachedAccounts>>,
 }

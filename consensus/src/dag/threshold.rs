@@ -279,7 +279,10 @@ mod test {
     use std::sync::Arc;
     use std::time::Duration;
 
+    #[cfg(not(feature = "gost"))]
     use everscale_crypto::ed25519::KeyPair;
+    #[cfg(feature = "gost")]
+    use everscale_crypto::gost256::KeyPair;
     use rand::{thread_rng, Rng};
 
     use super::*;
@@ -390,7 +393,7 @@ mod test {
     fn new_valid_point(round: Round, now: UnixTime, conf: &MempoolConfig) -> DagPoint {
         let mut status = PointStatusValidated::default();
         status.is_valid = true;
-        let keypair = KeyPair::generate(&mut thread_rng());
+        let keypair = KeyPair::generate();
 
         let delay = UnixTime::from_millis(thread_rng().gen_range(1000..8000));
 

@@ -3,7 +3,10 @@ use std::ops::Deref;
 use std::sync::{Arc, Weak};
 
 use arc_swap::{ArcSwap, Guard};
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use futures_util::stream::FuturesUnordered;
 use futures_util::StreamExt;
 use parking_lot::lock_api::{RwLockReadGuard, RwLockWriteGuard};

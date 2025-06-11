@@ -81,6 +81,9 @@ impl ShardStateStuff {
     ) -> Result<Self> {
         anyhow::ensure!(zerostate_id.seqno == 0, "given id has a non-zero seqno");
 
+        #[cfg(feature = "gost")]
+        let file_hash = Boc::file_hash(bytes);
+        #[cfg(not(feature = "gost"))]
         let file_hash = Boc::file_hash_blake(bytes);
         anyhow::ensure!(
             zerostate_id.file_hash.as_slice() == file_hash.as_slice(),

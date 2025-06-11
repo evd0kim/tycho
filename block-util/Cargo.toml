@@ -37,6 +37,7 @@ base64 = { workspace = true }
 criterion = { workspace = true }
 
 [features]
+gost = []
 test = []
 
 [lints]

@@ -281,7 +281,10 @@ mod test {
     use std::io::Write;
     use std::sync::Arc;
 
+    #[cfg(not(feature = "gost"))]
     use everscale_crypto::ed25519::{KeyPair, SecretKey};
+    #[cfg(feature = "gost")]
+    use everscale_crypto::gost256::{KeyPair, SecretKey};
     use tycho_network::PeerId;
     use tycho_util::FastDashMap;
 

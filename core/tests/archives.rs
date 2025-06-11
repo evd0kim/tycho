@@ -190,14 +190,14 @@ impl ArchiveHandlerInner {
 async fn prepare_storage(config: StorageConfig, zerostate: ShardStateStuff) -> Result<Storage> {
     let storage = Storage::builder().with_config(config).build().await?;
 
-    let (handle, _) =
-        storage
-            .block_handle_storage()
-            .create_or_load_handle(zerostate.block_id(), NewBlockMeta {
-                is_key_block: zerostate.block_id().is_masterchain(),
-                gen_utime: zerostate.state().gen_utime,
-                ref_by_mc_seqno: 0,
-            });
+    let (handle, _) = storage.block_handle_storage().create_or_load_handle(
+        zerostate.block_id(),
+        NewBlockMeta {
+            is_key_block: zerostate.block_id().is_masterchain(),
+            gen_utime: zerostate.state().gen_utime,
+            ref_by_mc_seqno: 0,
+        },
+    );
 
     let shard_states = storage.shard_state_storage();
     shard_states
@@ -220,6 +220,9 @@ async fn prepare_storage(config: StorageConfig, zerostate: ShardStateStuff) -> R
 
         let root = CellBuilder::build_from(&state)?;
         let root_hash = *root.repr_hash();
+        #[cfg(feature = "gost")]
+        let file_hash = Boc::file_hash(Boc::encode(&root));
+        #[cfg(not(feature = "gost"))]
         let file_hash = Boc::file_hash_blake(Boc::encode(&root));
 
         let block_id = BlockId {
@@ -231,14 +234,14 @@ async fn prepare_storage(config: StorageConfig, zerostate: ShardStateStuff) -> R
 
         let state = ShardStateStuff::from_root(&block_id, root, shard_states.min_ref_mc_state())?;
 
-        let (handle, _) =
-            storage
-                .block_handle_storage()
-                .create_or_load_handle(state.block_id(), NewBlockMeta {
-                    is_key_block: state.block_id().is_masterchain(),
-                    gen_utime,
-                    ref_by_mc_seqno: 0,
-                });
+        let (handle, _) = storage.block_handle_storage().create_or_load_handle(
+            state.block_id(),
+            NewBlockMeta {
+                is_key_block: state.block_id().is_masterchain(),
+                gen_utime,
+                ref_by_mc_seqno: 0,
+            },
+        );
 
         storage
             .shard_state_storage()

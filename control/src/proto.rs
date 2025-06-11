@@ -2,6 +2,7 @@ use std::net::SocketAddr;
 use std::num::{NonZeroU32, NonZeroU64};
 
 use bytes::Bytes;
+use everscale_types::cell::HashBytes512;
 use everscale_types::models::{
     BlockId, BlockIdShort, BlockchainConfig, GlobalVersion, ShardAccount, StdAddr,
 };
@@ -105,6 +106,9 @@ pub struct LastAppliedBlock {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValidatorStatus {
+    #[cfg(feature = "gost")]
+    pub public_key: HashBytes512,
+    #[cfg(not(feature = "gost"))]
     pub public_key: HashBytes,
     pub in_current_vset: bool,
     pub in_next_vset: bool,

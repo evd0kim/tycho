@@ -662,11 +662,15 @@ impl Phase<FinalizeState> {
                     .set(rev_cells_capacity as f64);
             };
 
+            #[cfg(feature = "gost")]
+            let file_hash = Boc::file_hash(&data);
+            #[cfg(not(feature = "gost"))]
+            let file_hash = Boc::file_hash_blake(&data);
             let block_id = BlockId {
                 shard: self.state.collation_data.block_id_short.shard,
                 seqno: self.state.collation_data.block_id_short.seqno,
                 root_hash: *root.repr_hash(),
-                file_hash: Boc::file_hash_blake(&data),
+                file_hash,
             };
 
             build_block_elapsed = histogram.finish();
@@ -1315,23 +1319,48 @@ impl Phase<FinalizeState> {
                 0
             };
 
-            block_create_stats.set(creator, CreatorStats {
-                mc_blocks: BlockCounters {
-                    updated_at: collation_data.gen_utime,
-                    total: total_mc,
-                    cnt2048: total_mc,
-                    cnt65536: total_mc,
+            block_create_stats.set(
+                creator,
+                CreatorStats {
+                    mc_blocks: BlockCounters {
+                        updated_at: collation_data.gen_utime,
+                        total: total_mc,
+                        cnt2048: total_mc,
+                        cnt65536: total_mc,
+                    },
+                    shard_blocks: BlockCounters {
+                        updated_at: collation_data.gen_utime,
+                        total: *count,
+                        cnt2048: shard_scaled,
+                        cnt65536: shard_scaled,
+                    },
                 },
-                shard_blocks: BlockCounters {
-                    updated_at: collation_data.gen_utime,
-                    total: *count,
-                    cnt2048: shard_scaled,
-                    cnt65536: shard_scaled,
-                },
-            })?;
+            )?;
         }
         if !mc_updated {
-            block_create_stats.set(collation_data.created_by, CreatorStats {
+            block_create_stats.set(
+                collation_data.created_by,
+                CreatorStats {
+                    mc_blocks: BlockCounters {
+                        updated_at: collation_data.gen_utime,
+                        total: 1,
+                        cnt2048: 1,
+                        cnt65536: 1,
+                    },
+                    shard_blocks: BlockCounters {
+                        updated_at: collation_data.gen_utime,
+                        total: 0,
+                        cnt2048: 0,
+                        cnt65536: 0,
+                    },
+                },
+            )?;
+        }
+
+        let default_shard_blocks_count = collation_data.block_create_count.values().sum();
+        block_create_stats.set(
+            HashBytes::default(),
+            CreatorStats {
                 mc_blocks: BlockCounters {
                     updated_at: collation_data.gen_utime,
                     total: 1,
@@ -1340,28 +1369,12 @@ impl Phase<FinalizeState> {
                 },
                 shard_blocks: BlockCounters {
                     updated_at: collation_data.gen_utime,
-                    total: 0,
-                    cnt2048: 0,
-                    cnt65536: 0,
+                    total: default_shard_blocks_count,
+                    cnt2048: default_shard_blocks_count << 32,
+                    cnt65536: default_shard_blocks_count << 32,
                 },
-            })?;
-        }
-
-        let default_shard_blocks_count = collation_data.block_create_count.values().sum();
-        block_create_stats.set(HashBytes::default(), CreatorStats {
-            mc_blocks: BlockCounters {
-                updated_at: collation_data.gen_utime,
-                total: 1,
-                cnt2048: 1,
-                cnt65536: 1,
             },
-            shard_blocks: BlockCounters {
-                updated_at: collation_data.gen_utime,
-                total: default_shard_blocks_count,
-                cnt2048: default_shard_blocks_count << 32,
-                cnt65536: default_shard_blocks_count << 32,
-            },
-        })?;
+        )?;
         // TODO: prune CreatorStats https://github.com/ton-blockchain/ton/blob/master/validator/impl/collator.cpp#L4191
         Ok(())
     }

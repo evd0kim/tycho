@@ -3,7 +3,10 @@ use std::time::Duration;
 
 use anyhow::Result;
 use async_trait::async_trait;
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use everscale_types::models::*;
 use indexmap::{self, IndexMap};
 use serde::{Deserialize, Serialize};

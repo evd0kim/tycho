@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 
 use crate::dag::DagRound;
 use crate::intercom::PeerSchedule;

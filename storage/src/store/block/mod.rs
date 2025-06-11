@@ -482,6 +482,9 @@ impl BlockStorage {
                 break Some(id.block_id.as_short_id());
             }
 
+            #[cfg(feature = "gost")]
+            let file_hash = Boc::file_hash(value);
+            #[cfg(not(feature = "gost"))]
             let file_hash = Boc::file_hash_blake(value);
             let block_id = id.block_id.make_full(file_hash);
 
@@ -1871,11 +1874,14 @@ mod tests {
                 };
                 entry.push(block_id);
 
-                let (handle, _) = block_handles.create_or_load_handle(&block_id, NewBlockMeta {
-                    is_key_block: shard.is_masterchain() && seqno == 0,
-                    gen_utime: 0,
-                    ref_by_mc_seqno: seqno,
-                });
+                let (handle, _) = block_handles.create_or_load_handle(
+                    &block_id,
+                    NewBlockMeta {
+                        is_key_block: shard.is_masterchain() && seqno == 0,
+                        gen_utime: 0,
+                        ref_by_mc_seqno: seqno,
+                    },
+                );
 
                 for ty in ENTRY_TYPES {
                     blocks.add_data(&(block_id, ty).into(), GARBAGE)?;
@@ -1897,10 +1903,13 @@ mod tests {
             [(ShardIdent::BASECHAIN, 50)].into(),
             None,
         )?;
-        assert_eq!(stats, BlockGcStats {
-            mc_blocks_removed: 69,
-            total_blocks_removed: 69 + 49,
-        });
+        assert_eq!(
+            stats,
+            BlockGcStats {
+                mc_blocks_removed: 69,
+                total_blocks_removed: 69 + 49,
+            }
+        );
 
         let removed_ranges = HashMap::from_iter([
             (ShardIdent::MASTERCHAIN, vec![1..=69]),
@@ -1943,10 +1952,13 @@ mod tests {
             [(ShardIdent::BASECHAIN, 51)].into(),
             None,
         )?;
-        assert_eq!(stats, BlockGcStats {
-            mc_blocks_removed: 1,
-            total_blocks_removed: 2,
-        });
+        assert_eq!(
+            stats,
+            BlockGcStats {
+                mc_blocks_removed: 1,
+                total_blocks_removed: 2,
+            }
+        );
 
         // Remove no blocks
         let stats = remove_blocks(
@@ -1956,10 +1968,13 @@ mod tests {
             [(ShardIdent::BASECHAIN, 51)].into(),
             None,
         )?;
-        assert_eq!(stats, BlockGcStats {
-            mc_blocks_removed: 0,
-            total_blocks_removed: 0,
-        });
+        assert_eq!(
+            stats,
+            BlockGcStats {
+                mc_blocks_removed: 0,
+                total_blocks_removed: 0,
+            }
+        );
 
         Ok(())
     }

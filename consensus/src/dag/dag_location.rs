@@ -2,7 +2,10 @@ use std::collections::BTreeMap;
 use std::fmt::{Debug, Formatter};
 use std::sync::{Arc, OnceLock};
 
+#[cfg(not(feature = "gost"))]
 use everscale_crypto::ed25519::KeyPair;
+#[cfg(feature = "gost")]
+use everscale_crypto::gost256::KeyPair;
 use futures_util::FutureExt;
 
 use crate::dag::dag_point_future::DagPointFuture;

@@ -96,7 +96,10 @@ fn generate_zerostate(
 
     let root_hash = *boc.repr_hash();
     let data = Boc::encode(&boc);
-    let file_hash = Boc::file_hash_blake(&data);
+    #[cfg(feature = "gost")]
+    let file_hash = Boc::file_hash(data);
+    #[cfg(not(feature = "gost"))]
+    let file_hash = Boc::file_hash_blake(fata);
 
     std::fs::write(output_path, data).context("failed to write masterchain zerostate")?;
 
@@ -170,7 +173,7 @@ impl ZerostateConfig {
                 let cell = CellBuilder::build_from(&shard_state)?;
                 workchain.zerostate_root_hash = *cell.repr_hash();
                 let bytes = Boc::encode(&cell);
-                workchain.zerostate_file_hash = Boc::file_hash_blake(bytes);
+                workchain.zerostate_file_hash = Boc::file_hash(bytes);
 
                 workchains.set(id, &workchain)?;
                 updated = true;
@@ -393,10 +396,13 @@ impl ZerostateConfig {
                     .map(|hash| (hash, ()))
                     .collect::<Vec<_>>();
                 publishers.sort_unstable();
-                libs.set(hash, LibDescr {
-                    lib,
-                    publishers: Dict::try_from_sorted_slice(&publishers)?,
-                })?;
+                libs.set(
+                    hash,
+                    LibDescr {
+                        lib,
+                        publishers: Dict::try_from_sorted_slice(&publishers)?,
+                    },
+                )?;
             }
 
             state.libraries = libs;
@@ -406,27 +412,30 @@ impl ZerostateConfig {
         let mut shards = Vec::new();
         for entry in workchains.iter() {
             let (workchain, descr) = entry?;
-            shards.push((ShardIdent::new_full(workchain), ShardDescription {
-                seqno: 0,
-                reg_mc_seqno: 0,
-                start_lt: 0,
-                end_lt: 0,
-                root_hash: descr.zerostate_root_hash,
-                file_hash: descr.zerostate_file_hash,
-                before_split: false,
-                before_merge: false,
-                want_split: false,
-                want_merge: false,
-                nx_cc_updated: true,
-                next_catchain_seqno: 0,
-                ext_processed_to_anchor_id: 0,
-                top_sc_block_updated: false,
-                min_ref_mc_seqno: u32::MAX,
-                gen_utime: now,
-                split_merge_at: None,
-                fees_collected: CurrencyCollection::ZERO,
-                funds_created: CurrencyCollection::ZERO,
-            }));
+            shards.push((
+                ShardIdent::new_full(workchain),
+                ShardDescription {
+                    seqno: 0,
+                    reg_mc_seqno: 0,
+                    start_lt: 0,
+                    end_lt: 0,
+                    root_hash: descr.zerostate_root_hash,
+                    file_hash: descr.zerostate_file_hash,
+                    before_split: false,
+                    before_merge: false,
+                    want_split: false,
+                    want_merge: false,
+                    nx_cc_updated: true,
+                    next_catchain_seqno: 0,
+                    ext_processed_to_anchor_id: 0,
+                    top_sc_block_updated: false,
+                    min_ref_mc_seqno: u32::MAX,
+                    gen_utime: now,
+                    split_merge_at: None,
+                    fees_collected: CurrencyCollection::ZERO,
+                    funds_created: CurrencyCollection::ZERO,
+                },
+            ));
         }
 
         let curr_vset = self.params.get_current_validator_set()?;
@@ -553,21 +562,24 @@ fn make_default_params() -> Result<BlockchainConfigParams> {
     // Param 12
     {
         let mut workchains = Dict::new();
-        workchains.set(0, WorkchainDescription {
-            enabled_since: 0,
-            actual_min_split: 0,
-            min_split: 0,
-            max_split: 3,
-            active: true,
-            accept_msgs: true,
-            zerostate_root_hash: HashBytes::ZERO,
-            zerostate_file_hash: HashBytes::ZERO,
-            version: 0,
-            format: WorkchainFormat::Basic(WorkchainFormatBasic {
-                vm_version: 0,
-                vm_mode: 0,
-            }),
-        })?;
+        workchains.set(
+            0,
+            WorkchainDescription {
+                enabled_since: 0,
+                actual_min_split: 0,
+                min_split: 0,
+                max_split: 3,
+                active: true,
+                accept_msgs: true,
+                zerostate_root_hash: HashBytes::ZERO,
+                zerostate_file_hash: HashBytes::ZERO,
+                version: 0,
+                format: WorkchainFormat::Basic(WorkchainFormatBasic {
+                    vm_version: 0,
+                    vm_mode: 0,
+                }),
+            },
+        )?;
         params.set::<ConfigParam12>(&workchains)?;
     }
 
@@ -612,88 +624,106 @@ fn make_default_params() -> Result<BlockchainConfigParams> {
     // Param 19 will be added during state creation.
 
     // Param 20 (masterchain)
-    params.set_gas_prices(true, &GasLimitsPrices {
-        gas_price: 655360000,
-        gas_limit: 1000000,
-        special_gas_limit: 100000000,
-        gas_credit: 10000,
-        block_gas_limit: 11000000,
-        freeze_due_limit: 100000000,
-        delete_due_limit: 1000000000,
-        flat_gas_limit: 1000,
-        flat_gas_price: 10000000,
-    })?;
+    params.set_gas_prices(
+        true,
+        &GasLimitsPrices {
+            gas_price: 655360000,
+            gas_limit: 1000000,
+            special_gas_limit: 100000000,
+            gas_credit: 10000,
+            block_gas_limit: 11000000,
+            freeze_due_limit: 100000000,
+            delete_due_limit: 1000000000,
+            flat_gas_limit: 1000,
+            flat_gas_price: 10000000,
+        },
+    )?;
 
     // Param 21 (basechain)
-    params.set_gas_prices(false, &GasLimitsPrices {
-        gas_price: 65536000,
-        gas_limit: 1000000,
-        special_gas_limit: 1000000,
-        gas_credit: 10000,
-        block_gas_limit: 10000000,
-        freeze_due_limit: 100000000,
-        delete_due_limit: 1000000000,
-        flat_gas_limit: 1000,
-        flat_gas_price: 1000000,
-    })?;
+    params.set_gas_prices(
+        false,
+        &GasLimitsPrices {
+            gas_price: 65536000,
+            gas_limit: 1000000,
+            special_gas_limit: 1000000,
+            gas_credit: 10000,
+            block_gas_limit: 10000000,
+            freeze_due_limit: 100000000,
+            delete_due_limit: 1000000000,
+            flat_gas_limit: 1000,
+            flat_gas_price: 1000000,
+        },
+    )?;
 
     // Param 22 (masterchain)
-    params.set_block_limits(true, &BlockLimits {
-        bytes: BlockParamLimits {
-            underload: 131072,
-            soft_limit: 524288,
-            hard_limit: 1048576,
+    params.set_block_limits(
+        true,
+        &BlockLimits {
+            bytes: BlockParamLimits {
+                underload: 131072,
+                soft_limit: 524288,
+                hard_limit: 1048576,
+            },
+            gas: BlockParamLimits {
+                underload: 900000,
+                soft_limit: 1200000,
+                hard_limit: 2000000,
+            },
+            lt_delta: BlockParamLimits {
+                underload: 1000,
+                soft_limit: 5000,
+                hard_limit: 10000,
+            },
         },
-        gas: BlockParamLimits {
-            underload: 900000,
-            soft_limit: 1200000,
-            hard_limit: 2000000,
-        },
-        lt_delta: BlockParamLimits {
-            underload: 1000,
-            soft_limit: 5000,
-            hard_limit: 10000,
-        },
-    })?;
+    )?;
 
     // Param 23 (basechain)
-    params.set_block_limits(false, &BlockLimits {
-        bytes: BlockParamLimits {
-            underload: 131072,
-            soft_limit: 524288,
-            hard_limit: 1048576,
+    params.set_block_limits(
+        false,
+        &BlockLimits {
+            bytes: BlockParamLimits {
+                underload: 131072,
+                soft_limit: 524288,
+                hard_limit: 1048576,
+            },
+            gas: BlockParamLimits {
+                underload: 900000,
+                soft_limit: 1200000,
+                hard_limit: 80_000_000,
+            },
+            lt_delta: BlockParamLimits {
+                underload: 1000,
+                soft_limit: 5000,
+                hard_limit: 10000,
+            },
         },
-        gas: BlockParamLimits {
-            underload: 900000,
-            soft_limit: 1200000,
-            hard_limit: 80_000_000,
-        },
-        lt_delta: BlockParamLimits {
-            underload: 1000,
-            soft_limit: 5000,
-            hard_limit: 10000,
-        },
-    })?;
+    )?;
 
     // Param 24 (masterchain)
-    params.set_msg_forward_prices(true, &MsgForwardPrices {
-        lump_price: 10000000,
-        bit_price: 655360000,
-        cell_price: 65536000000,
-        ihr_price_factor: 98304,
-        first_frac: 21845,
-        next_frac: 21845,
-    })?;
+    params.set_msg_forward_prices(
+        true,
+        &MsgForwardPrices {
+            lump_price: 10000000,
+            bit_price: 655360000,
+            cell_price: 65536000000,
+            ihr_price_factor: 98304,
+            first_frac: 21845,
+            next_frac: 21845,
+        },
+    )?;
 
     // Param 25 (basechain)
-    params.set_msg_forward_prices(false, &MsgForwardPrices {
-        lump_price: 1000000,
-        bit_price: 65536000,
-        cell_price: 6553600000,
-        ihr_price_factor: 98304,
-        first_frac: 21845,
-        next_frac: 21845,
-    })?;
+    params.set_msg_forward_prices(
+        false,
+        &MsgForwardPrices {
+            lump_price: 1000000,
+            bit_price: 65536000,
+            cell_price: 6553600000,
+            ihr_price_factor: 98304,
+            first_frac: 21845,
+            next_frac: 21845,
+        },
+    )?;
 
     // Param 28
     let mut group_slots_fractions = Dict::<u16, u8>::new();
